@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -11,13 +9,12 @@ namespace az_function
 {
     public static class BlobUploader
     {
-        [FunctionName("ItineraryGeneratorJob_UploadBlob")]
-        public static async Task<IActionResult> UploadBlob([ActivityTrigger] PdfContent pdfContent, ILogger log)
+        public static async Task<IActionResult> UploadBlob(PdfContent pdfContent, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             // Upload the PDF to Azure Blob Storage
-            string connectionString = "DefaultEndpointsProtocol=https;AccountName=tobiasodionia;AccountKey=gRND5kdP37A19/heWLiSAWukLY7drgc3U/vYz6NWlL5g18DCZDjJoqg4BwGOmeaUHeTQV3p7nvoj+ASt0t/DYA==;EndpointSuffix=core.windows.net";
+            string connectionString = "DefaultEndpointsProtocol=https;AccountName=tobiasodionia;AccountKey=M+qIZ5h+J/Go82Z9Kbg1bbT/9Qc1veG6u3hBNOVQ0NxX0v45zWW5m4jSOefBAsrzh/grXliG4gPw+ASt4xMhYA==;EndpointSuffix=core.windows.net";
             string containerName = "ia-pdf";
             string blobName = Guid.NewGuid().ToString() + ".pdf";
             string mimeType = MimeMapping.MimeUtility.GetMimeMapping(blobName);
@@ -34,10 +31,8 @@ namespace az_function
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(containerName);
 
-            if (await container.CreateIfNotExistsAsync())
-            {
-                await container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
-            }
+            await container.CreateIfNotExistsAsync();
+            await container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
 
             if (blobName != null && content != null)
             {

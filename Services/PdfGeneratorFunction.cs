@@ -1,11 +1,6 @@
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Mvc;
 using System.IO;
-using System;
-using Microsoft.WindowsAzure.Storage;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
 using PdfSharp.Fonts;
@@ -14,8 +9,7 @@ namespace az_function
 {
     public static class PdfGenerator
     {
-        [FunctionName("ItineraryGeneratorJob_GeneratePdfStream")]
-        public static async Task<byte[]> GeneratePdfStream([ActivityTrigger] string request, ILogger log)
+        public static async Task<byte[]> GeneratePdfStream(string text, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -26,7 +20,7 @@ namespace az_function
             }
 
             // Generate PDF from the input string
-            byte[] pdfBytes = GetPdfStream(request);
+            byte[] pdfBytes = GetPdfStream(text);
 
             return pdfBytes;
         }
