@@ -9,14 +9,13 @@ using Microsoft.WindowsAzure.Storage;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
 using PdfSharp.Fonts;
-using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace az_function
 {
     public static class PdfGenerator
     {
-        [FunctionName("Chaining_GeneratePdf")]
-        public static async Task<byte[]> GeneratePdf([ActivityTrigger] string request, ILogger log)
+        [FunctionName("ItineraryGeneratorJob_GeneratePdfStream")]
+        public static async Task<byte[]> GeneratePdfStream([ActivityTrigger] string request, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -27,12 +26,12 @@ namespace az_function
             }
 
             // Generate PDF from the input string
-            byte[] pdfBytes = GeneratePdf(request);
+            byte[] pdfBytes = GetPdfStream(request);
 
             return pdfBytes;
         }
 
-        private static byte[] GeneratePdf(string content)
+        private static byte[] GetPdfStream(string content)
         {
             using (MemoryStream stream = new MemoryStream())
             {

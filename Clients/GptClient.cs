@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
@@ -10,32 +8,24 @@ namespace az_function
 {
     public static class GptClient
     {
-        [FunctionName("Chaining_GetItineraryFromGpt")]
-        public static async Task<IActionResult> GetItineraryFromGpt([ActivityTrigger] GetItineraryRequest request, ILogger log)
+        public static async Task<IActionResult> GetCompletion(GetCompletionRequest getCompletionRequest, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
-
-            // Replace "YOUR_OPENAI_API_KEY" with your actual OpenAI API key
-            string apiKey = "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";
-            string apiUrl = "https://api.openai.com/v1/completions";
-
-
-            string prompt = $"Write a 8-line poem about {request.City}";
 
             // Set up the request payload for the OpenAI API
             var requestPayload = new
             {
-                model = "text-davinci-003", // Specify the model you want to use
-                prompt = prompt,
-                max_tokens = 150
+                model = getCompletionRequest.Model,
+                prompt = getCompletionRequest.Prompt,
+                max_tokens = getCompletionRequest.MaxToken
             };
 
             using (HttpClient client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {getCompletionRequest.ApiKey}");
 
                 // Make a POST request to the OpenAI API
-                HttpResponseMessage response = await client.PostAsJsonAsync(apiUrl, requestPayload);
+                HttpResponseMessage response = await client.PostAsJsonAsync(getCompletionRequest.ApiUrl, requestPayload);
 
                 if (response.IsSuccessStatusCode)
                 {

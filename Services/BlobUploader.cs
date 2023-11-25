@@ -3,19 +3,15 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System;
 using Microsoft.WindowsAzure.Storage;
-using PdfSharp.Pdf;
-using PdfSharp.Drawing;
-using PdfSharp.Fonts;
 using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace az_function
 {
     public static class BlobUploader
     {
-        [FunctionName("Chaining_BlobUploader")]
+        [FunctionName("ItineraryGeneratorJob_UploadBlob")]
         public static async Task<IActionResult> UploadBlob([ActivityTrigger] PdfContent pdfContent, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");

@@ -21,6 +21,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Arial.ttf" />
+    <EmbeddedResource Include="Fonts\Arial.ttf" />
 </ItemGroup>
 </Project>
