@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 
 namespace az_function
 {
-    public static class StartChain
+    public static class ItineraryGeneratorWorker
     {
-        [FunctionName("StartChain")]
+        [FunctionName("ItineraryGeneratorWorker")]
         public static async Task Run(
-                [QueueTrigger("getitineraryqueue")] string queueItem,
+                [QueueTrigger("getitineraryqueue")] GetItineraryRequest queueItem,
                 [DurableClient] IDurableOrchestrationClient starter,
                 ILogger log)
         {
             // Function input comes from the request content.
-            string instanceId = await starter.StartNewAsync<string>("Chaining", null, queueItem);
+            string instanceId = await starter.StartNewAsync<GetItineraryRequest>("ItineraryGeneratorJob", null, queueItem);
 
             log.LogInformation($"Started orchestration with ID = '{instanceId}' for queue message: {queueItem}");
         }

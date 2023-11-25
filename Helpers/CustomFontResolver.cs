@@ -14,7 +14,7 @@ namespace az_function
 
             if (faceName.Equals("Arial", StringComparison.OrdinalIgnoreCase))
             {
-                string resourceName = "az_function.Arial.ttf";
+                string resourceName = "az_function.Fonts.Arial.ttf";
                 byte[] fontBytes = LoadFontResource(resourceName);
                 // Load the Arial font file
                 return fontBytes;
