@@ -4,18 +4,24 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.Extensions.Configuration;
 
 namespace az_function
 {
-    public static class BlobUploader
+    public class BlobUploader : IFileUploader
     {
-        public static async Task<IActionResult> UploadBlob(PdfContent pdfContent, ILogger log)
+        private readonly IConfiguration _configuration;
+
+        public BlobUploader(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+        public async Task<IActionResult> UploadFile(PdfContent pdfContent, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
-            var configurations = Configurations.GetConfiguration();
 
             // Upload the PDF to Azure Blob Storage
-            string connectionString = configurations["AzureWebJobsStorage"];
+            string connectionString = _configuration["AzureWebJobsStorage"];
             string containerName = "ia-pdf";
             string blobName = Guid.NewGuid().ToString() + ".pdf";
             string mimeType = MimeMapping.MimeUtility.GetMimeMapping(blobName);

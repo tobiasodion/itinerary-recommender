@@ -6,14 +6,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace az_function
 {
-    public static class BlobUploaderActivity
+    public class BlobUploaderFunction
     {
+        private readonly IFileUploader _blobUploader;
+
+        public BlobUploaderFunction(IFileUploader blobUploader){
+            this._blobUploader = blobUploader;
+        }
+
+
         [FunctionName("ItineraryGeneratorJob_UploadBlob")]
-        public static async Task<IActionResult> UploadBlob([ActivityTrigger] PdfContent pdfContent, ILogger log)
+        public async Task<IActionResult> UploadBlob([ActivityTrigger] PdfContent pdfContent, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            var result = await BlobUploader.UploadBlob(pdfContent, log);
+            var result = await _blobUploader.UploadFile(pdfContent, log);
 
             return result;
         }

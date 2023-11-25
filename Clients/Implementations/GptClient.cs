@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 
 namespace az_function
 {
-    public static class GptClient
+    public class GptClient : IGptClient
     {
-        public static async Task<IActionResult> GetCompletion(GetCompletionRequest getCompletionRequest, ILogger log)
+        public async Task<IActionResult> GetCompletion(GetCompletionRequest getCompletionRequest, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 

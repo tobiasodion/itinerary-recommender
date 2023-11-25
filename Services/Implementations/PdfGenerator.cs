@@ -7,9 +7,9 @@ using PdfSharp.Fonts;
 
 namespace az_function
 {
-    public static class PdfGenerator
+    public class PdfGenerator : IFileGenerator
     {
-        public static async Task<byte[]> GeneratePdfStream(string text, ILogger log)
+        public async Task<byte[]> GenerateFileStream(string text, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
