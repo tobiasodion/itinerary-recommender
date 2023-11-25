@@ -9,8 +9,11 @@ namespace az_function
     {
         public static async Task<string> GenerateItinerary(GetItineraryRequest getItineraryRequest, ILogger log)
         {
+            log.LogInformation("C# HTTP trigger function processed a request.");
+            var configurations = Configurations.GetConfiguration();
+            
             // Replace "YOUR_OPENAI_API_KEY" with your actual OpenAI API key
-            var apiKey = "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";
+            var apiKey = configurations["GPT_API_KEY"];
             var apiUrl = "https://api.openai.com/v1/completions";
             var prompt = $"Write a 8-line poem about {getItineraryRequest.City}";
             var gptModel = "text-davinci-003"; // Specify the model you want to use

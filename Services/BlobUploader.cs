@@ -12,9 +12,10 @@ namespace az_function
         public static async Task<IActionResult> UploadBlob(PdfContent pdfContent, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
+            var configurations = Configurations.GetConfiguration();
 
             // Upload the PDF to Azure Blob Storage
-            string connectionString = "DefaultEndpointsProtocol=https;AccountName=tobiasodionia;AccountKey=M+qIZ5h+J/Go82Z9Kbg1bbT/9Qc1veG6u3hBNOVQ0NxX0v45zWW5m4jSOefBAsrzh/grXliG4gPw+ASt4xMhYA==;EndpointSuffix=core.windows.net";
+            string connectionString = configurations["AzureWebJobsStorage"];
             string containerName = "ia-pdf";
             string blobName = Guid.NewGuid().ToString() + ".pdf";
             string mimeType = MimeMapping.MimeUtility.GetMimeMapping(blobName);
@@ -31,8 +32,10 @@ namespace az_function
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(containerName);
 
-            await container.CreateIfNotExistsAsync();
-            await container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
+            if (await container.CreateIfNotExistsAsync())
+            {
+                await container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
+            }
 
             if (blobName != null && content != null)
             {
