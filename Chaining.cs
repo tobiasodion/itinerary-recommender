@@ -25,14 +25,23 @@ namespace az_function
 
                 if (itineraryFromGpt.StatusCode != 200)
                 {
-                    log.LogError($"Something went wrong");
+                    log.LogError($"Something went wrong during gpt recommendation");
                 }
                 else
                 {
                     var poem = itineraryFromGpt.Value.ToString();
                     log.LogInformation(poem);
-                    var pdfFromString = await context.CallActivityAsync<ObjectResult>("Chaining_GeneratePdf", poem);
-                    log.LogInformation(pdfFromString.Value.ToString());
+                    var pdfFromString = await context.CallActivityAsync<byte[]>("Chaining_GeneratePdf", poem);
+                    log.LogInformation(pdfFromString.ToString());
+                    var blobUrl = await context.CallActivityAsync<ObjectResult>("Chaining_BlobUploader", new PdfContent{Content = pdfFromString});
+                    if (blobUrl.StatusCode != 200)
+                    {
+                        log.LogError($"Something went wrong during blob upload");
+                    }
+                    else
+                    {
+                        log.LogInformation(blobUrl.Value.ToString());
+                    }
                 }
             }
             catch (Exception ex)

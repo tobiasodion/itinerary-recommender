@@ -16,7 +16,7 @@ namespace az_function
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             // Replace "YOUR_OPENAI_API_KEY" with your actual OpenAI API key
-            string apiKey = "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";
+            string apiKey = "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";
             string apiUrl = "https://api.openai.com/v1/completions";
 
 
