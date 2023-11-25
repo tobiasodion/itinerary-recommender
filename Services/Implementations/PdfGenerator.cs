@@ -25,7 +25,7 @@ namespace az_function
             return pdfBytes;
         }
 
-        private static byte[] GetPdfStream(string content)
+        private byte[] GetPdfStream(string content)
         {
             using (MemoryStream stream = new MemoryStream())
             {
@@ -45,7 +45,7 @@ namespace az_function
             }
         }
 
-        private static void DrawWrappedText(XGraphics gfx, XFont font, string text, XRect rect)
+        private void DrawWrappedText(XGraphics gfx, XFont font, string text, XRect rect)
         {
             // Split the text into words
             string[] words = text.Split(' ');
