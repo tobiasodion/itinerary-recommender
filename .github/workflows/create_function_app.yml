@@ -1,12 +1,12 @@
-name: Create Azure Function
+name: SetUp Azure Cloud
 
 on:
   push:
     branches:
       - create-ci-cd-pipeline
-
+      
 jobs:
-  create-function:
+  create-az-function:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,11 +18,7 @@ jobs:
         with:
           dotnet-version: '6.0'
 
-      - name: Install Azure Functions Core Tools
-        run: |
-          npm install -g azure-functions-core-tools@3 --unsafe-perm=true
-
-      - name: Set up Azure CLI
+      - name: Azure login
         uses: azure/login@v1
         with:
           # Individual parameters
@@ -31,18 +27,9 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Create Azure Function
-        run: |
-          func init tobiasodionia --dotnet
-          cd tobiasodionia
-          func new --name tobiasodionia --template "HTTP trigger"
-
-      - name: Build and Publish Azure Function
-        run: |
-          dotnet build
-          dotnet publish -o bin/publish
-
-      - name: Deploy Azure Function
-        run: |
-          az functionapp create --resource-group tobiasodionia --consumption-plan-location eastus --name tobiasodionia --runtime dotnet-isolated --functions-version 4
-          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src bin/publish/wwwroot.zip
+      - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az account show
