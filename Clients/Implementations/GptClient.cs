@@ -8,6 +8,12 @@ namespace az_function
 {
     public class GptClient : IGptClient
     {
+        private readonly string _apiKey;
+
+        public GptClient(string apiKey)
+        {
+            _apiKey = apiKey;
+        }
         public async Task<IActionResult> GetCompletion(GetCompletionRequest getCompletionRequest, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -22,7 +28,7 @@ namespace az_function
 
             using (HttpClient client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {getCompletionRequest.ApiKey}");
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
 
                 // Make a POST request to the OpenAI API
                 HttpResponseMessage response = await client.PostAsJsonAsync(getCompletionRequest.ApiUrl, requestPayload);

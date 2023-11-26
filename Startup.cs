@@ -25,8 +25,12 @@ namespace az_function
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddSingleton(configuration);
-            builder.Services.AddTransient<IGptClient, GptClient>();
 
+            builder.Services.AddTransient<IGptClient>(provider =>
+            {
+                var apiKey = configuration["GPT_API_KEY"];
+                return new GptClient(apiKey);
+            });
 
             builder.Services.AddTransient<IEmailClient>(provider =>
             {
@@ -37,10 +41,19 @@ namespace az_function
 
                 return new SmtpEmailClient(senderEmail, senderPassword, smtpHost, smtpPort);
             });
+
             // Register your services here
-            builder.Services.AddTransient<IFileUploader, BlobUploader>();
-            builder.Services.AddTransient<ILLMCompletionGenerator, ItineraryGenerator>();
+
+            builder.Services.AddTransient<ILLMCompletionGenerator>(provider =>
+            {
+                // Resolve the IEmailClient dependency
+                var gptClient = provider.GetRequiredService<IGptClient>();
+
+                return new ItineraryGenerator(gptClient);
+            });
+
             builder.Services.AddTransient<IFileGenerator, PdfGenerator>();
+            builder.Services.AddTransient<IFileUploader, BlobUploader>();
 
             builder.Services.AddTransient<IEmailSender>(provider =>
             {
