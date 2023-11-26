@@ -8,12 +8,10 @@ namespace az_function
 {
     public class ItineraryGenerator : ILLMCompletionGenerator
     {
-        private readonly IConfiguration _configuration;
         private readonly IGptClient _gptClient;
 
-        public ItineraryGenerator(IConfiguration configuration, IGptClient gptClient)
+        public ItineraryGenerator(IGptClient gptClient)
         {
-            _configuration = configuration;
             _gptClient = gptClient;
         }
 
@@ -21,14 +19,12 @@ namespace az_function
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            // Replace "YOUR_OPENAI_API_KEY" with your actual OpenAI API key
-            var apiKey = _configuration["GPT_API_KEY"];
             var apiUrl = "https://api.openai.com/v1/completions";
             var prompt = $"Write a 8-line poem about {getItineraryRequest.City}";
             var gptModel = "text-davinci-003"; // Specify the model you want to use
             var maxToken = 150;
 
-            var getCompletionRequest = new GetCompletionRequest(apiKey, apiUrl, prompt, gptModel, maxToken);
+            var getCompletionRequest = new GetCompletionRequest(apiUrl, prompt, gptModel, maxToken);
 
             try
             {
