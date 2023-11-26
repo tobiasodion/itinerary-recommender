@@ -6,6 +6,6 @@ namespace az_function
 {
     public interface IFileUploader
     {
-        Task<IActionResult> UploadFile(PdfContent pdfContent, ILogger log);
+        Task<string> UploadFile(PdfContent pdfContent, ILogger log);
     }
 }
