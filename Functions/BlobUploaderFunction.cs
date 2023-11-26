@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Mvc;
 
 namespace az_function
 {
@@ -16,7 +15,7 @@ namespace az_function
 
 
         [FunctionName("ItineraryGeneratorJob_UploadBlob")]
-        public async Task<IActionResult> UploadBlob([ActivityTrigger] PdfContent pdfContent, ILogger log)
+        public async Task<string> UploadBlob([ActivityTrigger] PdfContent pdfContent, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 

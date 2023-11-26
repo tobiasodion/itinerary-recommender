@@ -16,7 +16,7 @@ namespace az_function
         {
             _configuration = configuration;
         }
-        public async Task<IActionResult> UploadFile(PdfContent pdfContent, ILogger log)
+        public async Task<string> UploadFile(PdfContent pdfContent, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -26,10 +26,27 @@ namespace az_function
             string blobName = Guid.NewGuid().ToString() + ".pdf";
             string mimeType = MimeMapping.MimeUtility.GetMimeMapping(blobName);
 
-            var blobUrl = await UploadToBlobStorage(connectionString, containerName, blobName, pdfContent.Content, mimeType);
+            try
+            {
+                var blobUrl = await UploadToBlobStorage(connectionString, containerName, blobName, pdfContent.Content, mimeType);
 
-            // Return the URL of the stored PDF
-            return new OkObjectResult($"PDF stored at: {blobUrl}");
+                if (blobUrl != String.Empty)
+                {
+                    log.LogInformation($"PDF Stored at: {blobUrl}");
+                }
+                else
+                {
+                    log.LogError($"Something went wrong during blob upload");
+                }
+
+                // Return the URL of the stored PDF
+                return blobUrl;
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"Error - {ex.Message}");
+                throw;
+            }
         }
 
         private async Task<string> UploadToBlobStorage(string connectionString, string containerName, string blobName, byte[] content, string fileMimeType)
@@ -51,7 +68,7 @@ namespace az_function
                 return blob.Uri.AbsoluteUri;
             }
 
-            return "";
+            return String.Empty;
         }
     }
 }
