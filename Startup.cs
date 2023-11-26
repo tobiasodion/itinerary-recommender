@@ -49,7 +49,7 @@ namespace az_function
                 // Resolve the IEmailClient dependency
                 var gptClient = provider.GetRequiredService<IGptClient>();
 
-                return new ItineraryGenerator(gptClient);
+                return new ItineraryGenerator(gptClient, configuration);
             });
 
             builder.Services.AddTransient<IFileGenerator, PdfGenerator>();
