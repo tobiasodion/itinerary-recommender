@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace az_function
 {
-    public class PdfGeneratorActivity
+    public class PdfGeneratorFunction
     {
         private readonly IFileGenerator _pdfGenerator;
 
-        public PdfGeneratorActivity(IFileGenerator pdfGenerator){
-            this._pdfGenerator = pdfGenerator;
+        public PdfGeneratorFunction(IFileGenerator pdfGenerator){
+            _pdfGenerator = pdfGenerator;
         }
 
         [FunctionName("ItineraryGeneratorJob_GeneratePdfStream")]

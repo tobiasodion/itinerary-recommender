@@ -5,13 +5,13 @@ using Microsoft.Extensions.Logging;
 
 namespace az_function
 {
-    public class ItineraryGeneratorActivity
+    public class ItineraryGeneratorFunction
     {
         private readonly ILLMCompletionGenerator _llmCompletionGenerator;
 
-        public ItineraryGeneratorActivity(ILLMCompletionGenerator llmCompletionGenerator)
+        public ItineraryGeneratorFunction(ILLMCompletionGenerator llmCompletionGenerator)
         {
-            this._llmCompletionGenerator = llmCompletionGenerator;
+            _llmCompletionGenerator = llmCompletionGenerator;
         }
 
         [FunctionName("ItineraryGeneratorJob_GetItinerary")]
