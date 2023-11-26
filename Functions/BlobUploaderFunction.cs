@@ -11,7 +11,7 @@ namespace az_function
         private readonly IFileUploader _blobUploader;
 
         public BlobUploaderFunction(IFileUploader blobUploader){
-            this._blobUploader = blobUploader;
+            _blobUploader = blobUploader;
         }
 
 

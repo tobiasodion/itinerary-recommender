@@ -19,8 +19,8 @@ namespace az_function
                 var input = context.GetInput<GetItineraryRequest>();
                 var itineraryFromGpt = await context.CallActivityAsync<string>("ItineraryGeneratorJob_GetItinerary", input);
                 var pdfStreamFromString = await context.CallActivityAsync<byte[]>("ItineraryGeneratorJob_GeneratePdfStream", itineraryFromGpt);
-                log.LogInformation(pdfStreamFromString.ToString());
-                var blobUrl = await context.CallActivityAsync<ObjectResult>("ItineraryGeneratorJob_UploadBlob", new PdfContent { Content = pdfStreamFromString });
+                var blobUrl = await context.CallActivityAsync<ObjectResult>("ItineraryGeneratorJob_UploadBlob", new PdfContent(pdfStreamFromString));
+                var blobUrlString = blobUrl.Value.ToString();
 
                 if (blobUrl.StatusCode != 200)
                 {
@@ -28,9 +28,9 @@ namespace az_function
                 }
                 else
                 {
-                    log.LogInformation(blobUrl.Value.ToString());
+                    log.LogInformation(blobUrlString);
+                    await context.CallActivityAsync("ItineraryGeneratorJob_SendEMail", new SendEmailRequest(input.Email, "Itinerary Suggestion", blobUrlString));
                 }
-
             }
             catch (Exception ex)
             {
