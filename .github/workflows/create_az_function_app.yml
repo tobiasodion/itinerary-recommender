@@ -1,4 +1,4 @@
-name: SetUp Azure Cloud
+name: Create Function App
 
 on:
   push:
