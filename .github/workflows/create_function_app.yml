@@ -1,0 +1,44 @@
+name: Create Azure Function (.NET 6.0)
+
+on:
+  push:
+    branches:
+      - create-ci-cd-pipeline
+
+jobs:
+  create-function:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v7
+        with:
+          dotnet-version: '6.0'
+
+      - name: Install Azure Functions Core Tools
+        run: |
+          npm install -g azure-functions-core-tools@3 --unsafe-perm=true
+
+      - name: Set up Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Azure Function
+        run: |
+          func init tobiasodionia --dotnet
+          cd tobiasodionia
+          func new --name tobiasodionia --template "HTTP trigger"
+
+      - name: Build and Publish Azure Function
+        run: |
+          dotnet build
+          dotnet publish -o bin/publish
+
+      - name: Deploy Azure Function
+        run: |
+          az functionapp create --resource-group tobiasodionia --consumption-plan-location eastus --name tobiasodionia --runtime dotnet-isolated --functions-version 4
+          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src bin/publish/wwwroot.zip
