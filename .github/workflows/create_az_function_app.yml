@@ -18,14 +18,36 @@ jobs:
         with:
           dotnet-version: '6.0'
 
+      - name: Install Azure Functions Core Tools
+        run: |
+          npm install -g azure-functions-core-tools@3 --unsafe-perm=true
+
       - name: Azure login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Azure CLI script
-        uses: azure/CLI@v1
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az account show
+      - name: Create Azure Function
+        run: |
+          # Function app and storage account names must be unique.
+          # Variable block
+          let "randomIdentifier=$RANDOM*$RANDOM"
+          location="east"
+          resourceGroup="msdocs-azure-functions-rg-$randomIdentifier"
+          tag="create-function-app-consumption"
+          storage="msdocsaccount$randomIdentifier"
+          functionApp="msdocs-serverless-function-$randomIdentifier"
+          skuStorage="Standard_LRS"
+          functionsVersion="4"
+          
+          # Create a resource group
+          echo "Creating $resourceGroup in "$location"..."
+          az group create --name $resourceGroup --location "$location" --tags $tag
+          
+          # Create an Azure storage account in the resource group.
+          echo "Creating $storage"
+          az storage account create --name $storage --location "$location" --resource-group $resourceGroup --sku $skuStorage
+          
+          # Create a serverless function app in the resource group.
+          echo "Creating $functionApp"
+          az functionapp create --name $functionApp --storage-account $storage --consumption-plan-location "$location" --resource-group $resourceGroup --functions-version $functionsVersion
