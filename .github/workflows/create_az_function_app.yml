@@ -28,7 +28,7 @@ jobs:
           # Function app and storage account names must be unique.
           # Variable block
           let "randomIdentifier=$RANDOM*$RANDOM"
-          location="eastus"
+          location="francecentral"
           resourceGroup="msdocs-azure-functions-rg-$randomIdentifier"
           tag="create-function-app-consumption"
           storage="msdocsaccount$randomIdentifier"
