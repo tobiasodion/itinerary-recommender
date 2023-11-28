@@ -55,9 +55,9 @@ jobs:
         run: |
             dotnet build
             dotnet publish -o bin/publish
-            cd bin/publish
-            mkdir wwwroot.zip
-            zip -r bin/publish/wwwroot.zip .
+            mkdir ${{ github.workspace }}/build-artifacts
+            cd ${{ github.workspace }}/bin/publish
+            zip -r ${{ github.workspace }}/build-artifacts/wwwroot.zip .
 
       # Upload the code artifact, this will be used later
       - name: 'Package Azure Function release build'
