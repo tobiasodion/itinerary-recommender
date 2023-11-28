@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - create-ci-cd-pipeline
+
+env:
+  AZURE_FUNCTIONAPP_LOCATION: 'francecentral'
+  AZURE_FUNCTIONAPP_NAME: 'tobiasodionia'
+  AZURE_FUNCTIONAPP_VERSION: '4'
+  AZURE_FUNCTIONAPP_STORAGE: 'tobiasodioniastorage'
+  AZURE_FUNCTIONAPP_STORAGE_SKU: 'Standard_LRS'
+  AZURE_RESOURCE_GROUP: 'tobiasodionia'
+  DOTNET_VERSION: '6.0'
+  BUILD_OUTPUT_PATH: '${{ github.workspace }}/build-artifacts'
+  BUILD_PACKAGE_NAME: 'tobiasodionia.zip'
       
 jobs:
   set-up-cloud:
@@ -17,26 +28,29 @@ jobs:
 
       - name: Create Azure Function
         run: |
-          # Function app and storage account names must be unique.
-          # Variable block
-          location="francecentral"
-          resourceGroup="tobiasodionia"
-          storage="tobiasodioniastorage"
-          functionApp="tobiasodionia"
-          skuStorage="Standard_LRS"
-          functionsVersion="4"
-          
           # Create a resource group
           echo "Creating $resourceGroup in "$location"..."
-          az group create --name $resourceGroup --location "$location" --tags $tag
+          az group create \
+            --name ${{ AZURE_RESOURCE_GROUP }} \
+            --location ${{ AZURE_FUNCTIONAPP_LOCATION }}
           
           # Create an Azure storage account in the resource group.
           echo "Creating $storage"
-          az storage account create --name $storage --location "$location" --resource-group $resourceGroup --sku $skuStorage --allow-blob-public-access true
+          az storage account create \
+            --name ${{AZURE_FUNCTIONAPP_STORAGE}} \
+            --location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
+            --resource-group ${{ AZURE_RESOURCE_GROUP }} \
+            --sku ${{ AZURE_FUNCTIONAPP_STORAGE_SKU }} \
+            --allow-blob-public-access true
           
           # Create a serverless function app in the resource group.
           echo "Creating $functionApp"
-          az functionapp create --name $functionApp --storage-account $storage --consumption-plan-location "$location" --resource-group $resourceGroup --functions-version $functionsVersion
+          az functionapp create \
+            --name ${{ AZURE_FUNCTIONAPP_NAME }} \
+            --storage-account ${{AZURE_FUNCTIONAPP_STORAGE}} \
+            --consumption-plan-location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
+            --resource-group ${{ AZURE_RESOURCE_GROUP }} \
+            --functions-version ${{ AZURE_FUNCTIONAPP_VERSION }}
 
   #######################################################################################################
   build-publish-az-function:
@@ -55,16 +69,16 @@ jobs:
         run: |
             dotnet build
             dotnet publish -o bin/publish
-            mkdir ${{ github.workspace }}/build-artifacts
+            mkdir ${{ BUILD_OUTPUT_PATH }}
             cd ${{ github.workspace }}/bin/publish
-            zip -r ${{ github.workspace }}/build-artifacts/wwwroot.zip .
+            zip -r ${{ BUILD_OUTPUT_PATH }}/${{ BUILD_PACKAGE_NAME }} .
 
       # Upload the code artifact, this will be used later
       - name: 'Package Azure Function release build'
         uses: actions/upload-artifact@v2
         with:
           name: build_artifacts
-          path: ${{ github.workspace }}/build-artifacts
+          path: ${{ BUILD_OUTPUT_PATH }}
           if-no-files-found: error
 
   #######################################################################################################
@@ -85,15 +99,15 @@ jobs:
       - name: 'Create output directory'
         shell: bash
         run: |
-           mkdir ${{ github.workspace }}/build-artifacts
+           mkdir ${{ BUILD_OUTPUT_PATH }}
 
        # Fetch published code
       - name: 'Download Azure function release build'
         uses: actions/download-artifact@v2
         with:
           name: build_artifacts
-          path: ${{ github.workspace }}/build-artifacts
+          path: ${{ BUILD_OUTPUT_PATH }}
       
       - name: Run Final Step
         run: |
-          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src ${{ github.workspace }}/build-artifacts/wwwroot.zip
+          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src ${{ BUILD_OUTPUT_PATH }}/${{ BUILD_PACKAGE_NAME }}
