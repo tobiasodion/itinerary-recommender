@@ -55,6 +55,17 @@ jobs:
         run: |
             dotnet build
             dotnet publish -o bin/publish
+            cd bin/publish
+            mkdir wwwroot.zip
+            zip -r bin/publish/wwwroot.zip
+
+      # Upload the code artifact, this will be used later
+      - name: 'Package Azure Function release build'
+        uses: actions/upload-artifact@v2
+        with:
+          name: build_artifacts
+          path: ${{ github.workspace }}/build-artifacts
+          if-no-files-found: error
 
   #######################################################################################################
   deploy-az-function:
@@ -73,4 +84,4 @@ jobs:
       
       - name: Run Final Step
         run: |
-          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src bin/publish/wwwroot.zip
+          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src ${{ github.workspace }}/build-artifacts/wwwroot.zip
