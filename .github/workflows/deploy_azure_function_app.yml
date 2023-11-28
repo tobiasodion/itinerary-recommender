@@ -31,26 +31,26 @@ jobs:
           # Create a resource group
           echo "Creating $resourceGroup in "$location"..."
           az group create \
-          --name ${{ AZURE_RESOURCE_GROUP }} \
-          --location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
+          --name ${{ env.AZURE_RESOURCE_GROUP }} \
+          --location ${{ env.AZURE_FUNCTIONAPP_LOCATION }} \
           
           # Create an Azure storage account in the resource group.
           echo "Creating $storage"
           az storage account create \
-          --name ${{AZURE_FUNCTIONAPP_STORAGE}} \
-          --location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
-          --resource-group ${{ AZURE_RESOURCE_GROUP }} \
-          --sku ${{ AZURE_FUNCTIONAPP_STORAGE_SKU }} \
+          --name ${{env.AZURE_FUNCTIONAPP_STORAGE}} \
+          --location ${{ env.AZURE_FUNCTIONAPP_LOCATION }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --sku ${{ env.AZURE_FUNCTIONAPP_STORAGE_SKU }} \
           --allow-blob-public-access true \
           
           # Create a serverless function app in the resource group.
           echo "Creating $functionApp"
           az functionapp create \
-          --name ${{ AZURE_FUNCTIONAPP_NAME }} \
-          --storage-account ${{AZURE_FUNCTIONAPP_STORAGE}} \
-          --consumption-plan-location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
-          --resource-group ${{ AZURE_RESOURCE_GROUP }} \
-          --functions-version ${{ AZURE_FUNCTIONAPP_VERSION }} \
+          --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
+          --storage-account ${{env.AZURE_FUNCTIONAPP_STORAGE}} \
+          --consumption-plan-location ${{ env.AZURE_FUNCTIONAPP_LOCATION }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --functions-version ${{ env.AZURE_FUNCTIONAPP_VERSION }} \
 
   #######################################################################################################
   build-publish-az-function:
@@ -69,16 +69,16 @@ jobs:
         run: |
             dotnet build
             dotnet publish -o bin/publish
-            mkdir ${{ BUILD_OUTPUT_PATH }}
+            mkdir ${{ env.BUILD_OUTPUT_PATH }}
             cd ${{ github.workspace }}/bin/publish
-            zip -r ${{ BUILD_OUTPUT_PATH }}/${{ BUILD_PACKAGE_NAME }} .
+            zip -r ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }} .
 
       # Upload the code artifact, this will be used later
       - name: 'Package Azure Function release build'
         uses: actions/upload-artifact@v2
         with:
           name: build_artifacts
-          path: ${{ BUILD_OUTPUT_PATH }}
+          path: ${{ env.BUILD_OUTPUT_PATH }}
           if-no-files-found: error
 
   #######################################################################################################
@@ -99,15 +99,15 @@ jobs:
       - name: 'Create output directory'
         shell: bash
         run: |
-           mkdir ${{ BUILD_OUTPUT_PATH }}
+           mkdir ${{ env.BUILD_OUTPUT_PATH }}
 
        # Fetch published code
       - name: 'Download Azure function release build'
         uses: actions/download-artifact@v2
         with:
           name: build_artifacts
-          path: ${{ BUILD_OUTPUT_PATH }}
+          path: ${{ env.BUILD_OUTPUT_PATH }}
       
       - name: Run Final Step
         run: |
-          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src ${{ BUILD_OUTPUT_PATH }}/${{ BUILD_PACKAGE_NAME }}
+          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }}
