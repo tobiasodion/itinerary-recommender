@@ -31,26 +31,26 @@ jobs:
           # Create a resource group
           echo "Creating $resourceGroup in "$location"..."
           az group create \
-            --name ${{ AZURE_RESOURCE_GROUP }} \
-            --location ${{ AZURE_FUNCTIONAPP_LOCATION }}
+          --name ${{ AZURE_RESOURCE_GROUP }} \
+          --location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
           
           # Create an Azure storage account in the resource group.
           echo "Creating $storage"
           az storage account create \
-            --name ${{AZURE_FUNCTIONAPP_STORAGE}} \
-            --location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
-            --resource-group ${{ AZURE_RESOURCE_GROUP }} \
-            --sku ${{ AZURE_FUNCTIONAPP_STORAGE_SKU }} \
-            --allow-blob-public-access true
+          --name ${{AZURE_FUNCTIONAPP_STORAGE}} \
+          --location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
+          --resource-group ${{ AZURE_RESOURCE_GROUP }} \
+          --sku ${{ AZURE_FUNCTIONAPP_STORAGE_SKU }} \
+          --allow-blob-public-access true \
           
           # Create a serverless function app in the resource group.
           echo "Creating $functionApp"
           az functionapp create \
-            --name ${{ AZURE_FUNCTIONAPP_NAME }} \
-            --storage-account ${{AZURE_FUNCTIONAPP_STORAGE}} \
-            --consumption-plan-location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
-            --resource-group ${{ AZURE_RESOURCE_GROUP }} \
-            --functions-version ${{ AZURE_FUNCTIONAPP_VERSION }}
+          --name ${{ AZURE_FUNCTIONAPP_NAME }} \
+          --storage-account ${{AZURE_FUNCTIONAPP_STORAGE}} \
+          --consumption-plan-location ${{ AZURE_FUNCTIONAPP_LOCATION }} \
+          --resource-group ${{ AZURE_RESOURCE_GROUP }} \
+          --functions-version ${{ AZURE_FUNCTIONAPP_VERSION }} \
 
   #######################################################################################################
   build-publish-az-function:
