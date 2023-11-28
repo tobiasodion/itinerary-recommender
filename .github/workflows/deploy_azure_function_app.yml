@@ -100,7 +100,7 @@ jobs:
   deploy-az-function:
     runs-on: ubuntu-latest
       
-    needs: [set-up-cloud, build-publish-az-function]
+    needs: [set-up-function-app-on-cloud, build-publish-az-function]
       
     steps:
       - name: Checkout repository
