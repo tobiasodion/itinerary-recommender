@@ -57,7 +57,7 @@ jobs:
             dotnet publish -o bin/publish
             cd bin/publish
             mkdir wwwroot.zip
-            zip -r bin/publish/wwwroot.zip
+            zip -r bin/publish/wwwroot.zip .
 
       # Upload the code artifact, this will be used later
       - name: 'Package Azure Function release build'
