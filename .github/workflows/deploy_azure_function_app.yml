@@ -12,9 +12,15 @@ env:
   AZURE_FUNCTIONAPP_STORAGE: 'tobiasodioniastorage'
   AZURE_FUNCTIONAPP_STORAGE_SKU: 'Standard_LRS'
   AZURE_RESOURCE_GROUP: 'tobiasodionia'
+
   DOTNET_VERSION: '6.0'
   BUILD_OUTPUT_PATH: '${{ github.workspace }}/build-artifacts'
   BUILD_PACKAGE_NAME: 'tobiasodionia.zip'
+
+  GPT_API_BASE_URL: 'https://api.openai.com'
+  GPT_API_COMPLETION_ENDPOINT: '/v1/completions'
+  SMTP_HOST: 'smtp.gmail.com'
+  SMTP_PORT: '587'
       
 jobs:
   set-up-function-app-on-cloud:
@@ -66,6 +72,37 @@ jobs:
           --consumption-plan-location ${{ env.AZURE_FUNCTIONAPP_LOCATION }} \
           --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
           --functions-version ${{ env.AZURE_FUNCTIONAPP_VERSION }} \
+
+  #######################################################################################################
+  update-function-app-configuration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+      - name: Retrieve Configurations
+        id: retrieve-configs
+        run: |
+          # Retrieve existing configurations
+          CONFIGS=$(az functionapp config appsettings list --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --output json)
+          echo "::set-output name=configs::$CONFIGS"
+  
+      - name: Append New Configurations
+        id: append-configs
+        run: |
+          # Append new configurations (replace with your logic)
+          NEW_CONFIGS="{'GPT_API_KEY': '${{secrets.GPT_API_KEY}}', 'EMAIL_ACCOUNT': '${{secrets.EMAIL_ACCOUNT}}','EMAIL_PASSWORD': '${{secrets.EMAIL_PASSWORD}}', 'GPT_API_BASE_URL': '${{env.GPT_API_BASE_URL}}','GPT_API_COMPLETION_ENDPOINT': '${{env.GPT_API_COMPLETION_ENDPOINT}}', 'SMTP_HOST': '${{env.SMTP_HOST}}','SMTP_PORT': '${{env.SMTP_PORT}}'}"
+          ALL_CONFIGS="${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIGS"
+          echo "::set-output name=all_configs::$ALL_CONFIGS"
+  
+      - name: Update Configurations on Azure
+        run: |
+          # Update configurations on Azure
+          az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings "$ALL_CONFIGS"
+  
 
   #######################################################################################################
   build-publish-az-function:
@@ -126,3 +163,4 @@ jobs:
       - name: Run Final Step
         run: |
           az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }}
+          
