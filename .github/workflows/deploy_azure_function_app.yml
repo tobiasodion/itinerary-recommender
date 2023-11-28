@@ -81,6 +81,18 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Create output directory'
+        shell: bash
+        run: |
+           mkdir ${{ env.BUILD_OUTPUT_PATH }}
+
+       # Fetch published code
+      - name: 'Download Azure function release build'
+        uses: actions/download-artifact@v2
+        with:
+          name: build_artifacts
+          path: ${{ github.workspace }}/build-artifacts
       
       - name: Run Final Step
         run: |
