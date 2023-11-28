@@ -32,7 +32,7 @@ jobs:
           
           # Create an Azure storage account in the resource group.
           echo "Creating $storage"
-          az storage account create --name $storage --location "$location" --resource-group $resourceGroup --sku $skuStorage
+          az storage account create --name $storage --location "$location" --resource-group $resourceGroup --sku $skuStorage --allow-blob-public-access true
           
           # Create a serverless function app in the resource group.
           echo "Creating $functionApp"
