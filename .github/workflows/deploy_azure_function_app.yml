@@ -85,7 +85,7 @@ jobs:
       - name: 'Create output directory'
         shell: bash
         run: |
-           mkdir ${{ env.BUILD_OUTPUT_PATH }}
+           mkdir ${{ github.workspace }}/build-artifacts
 
        # Fetch published code
       - name: 'Download Azure function release build'
