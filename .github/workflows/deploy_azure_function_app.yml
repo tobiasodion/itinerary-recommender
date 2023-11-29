@@ -119,12 +119,12 @@ jobs:
             {
                 "name" :"GPT_API_COMPLETION_ENDPOINT",
                 "slotSetting" : false,
-                "value":"${{env.GPT_API_COMPLETION_ENDPOINT}}", 
+                "value":"${{env.GPT_API_COMPLETION_ENDPOINT}}"
             },
             {
                 "name" :"SMTP_HOST", 
                 "slotSetting" : false,
-                "value":"${{env.SMTP_HOST}}", 
+                "value":"${{env.SMTP_HOST}}"
             },
             {
                 "SMTP_PORT": 
