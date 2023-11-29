@@ -122,12 +122,12 @@ jobs:
                 "value":"${{env.GPT_API_COMPLETION_ENDPOINT}}"
             },
             {
-                "name" :"SMTP_HOST", 
+                "name" : "SMTP_HOST", 
                 "slotSetting" : false,
                 "value":"${{env.SMTP_HOST}}"
             },
             {
-                "SMTP_PORT": 
+                "name" : "SMTP_PORT", 
                 "slotSetting" : false,
                 "value":"${{env.SMTP_PORT}}"
             }]'
