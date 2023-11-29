@@ -89,11 +89,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
     
-      - name: Retrieve Configurations
+      - name: Add Configurations
         id: retrieve-configs
         run: |
           # Retrieve existing configurations
-          CONFIGS=$(az functionapp config appsettings list --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }})
+          CONFIGS=$(az functionapp config appsettings list --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }}  --output json)
           echo "::set-output name=configs::$CONFIGS"
   
       - name: Append New Configurations
