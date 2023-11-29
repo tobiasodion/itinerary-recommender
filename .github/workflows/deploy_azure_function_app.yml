@@ -131,7 +131,6 @@ jobs:
                 "slotSetting" : false,
                 "value":"${{env.SMTP_PORT}}"
             }]'
-            
           # Append new configurations (replace with your logic)
           ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIG")
           echo "::set-output name=all_configs::$ALL_CONFIGS"
