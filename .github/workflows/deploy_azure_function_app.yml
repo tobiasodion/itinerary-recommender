@@ -21,6 +21,8 @@ env:
   GPT_API_COMPLETION_ENDPOINT: '/v1/completions'
   SMTP_HOST: 'smtp.gmail.com'
   SMTP_PORT: '587'
+  
+  CONFIGS: ""
       
 jobs:
   set-up-function-app-on-cloud:
@@ -93,8 +95,45 @@ jobs:
       - name: Append New Configurations
         id: append-configs
         run: |
+          config="[
+            {
+              'name' : 'GPT_API_KEY',
+              'slotSetting' : false,
+              'value': '${{secrets.GPT_API_KEY}}''
+            },
+            {
+              'name' :'EMAIL_ACCOUNT',
+              'slotSetting' : false,
+              'value':'${{secrets.EMAIL_ACCOUNT}}'
+            },
+            {
+              'name' :'EMAIL_PASSWORD',
+              'slotSetting' : false,
+              'value':'${{secrets.EMAIL_PASSWORD}}' 
+            },
+            {
+              'name' :'GPT_API_BASE_URL',
+              'slotSetting' : false,
+              'value':'${{env.GPT_API_BASE_URL}}'
+            },
+            {
+                'name' :'GPT_API_COMPLETION_ENDPOINT',
+                'slotSetting' : false,
+                'value':'${{env.GPT_API_COMPLETION_ENDPOINT}}', 
+            },
+            {
+                'name' :'SMTP_HOST', 
+                'slotSetting' : false,
+                'value':'${{env.SMTP_HOST}}', 
+            },
+            {
+                'SMTP_PORT': 
+                'slotSetting' : false,
+                'value':'${{env.SMTP_PORT}}'
+            }]"
+            
           # Append new configurations (replace with your logic)
-          NEW_CONFIGS="{'GPT_API_KEY': '${{secrets.GPT_API_KEY}}', 'EMAIL_ACCOUNT': '${{secrets.EMAIL_ACCOUNT}}','EMAIL_PASSWORD': '${{secrets.EMAIL_PASSWORD}}', 'GPT_API_BASE_URL': '${{env.GPT_API_BASE_URL}}','GPT_API_COMPLETION_ENDPOINT': '${{env.GPT_API_COMPLETION_ENDPOINT}}', 'SMTP_HOST': '${{env.SMTP_HOST}}','SMTP_PORT': '${{env.SMTP_PORT}}'}"
+          NEW_CONFIGS=$config
           ALL_CONFIGS="${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIGS"
           echo "::set-output name=all_configs::$ALL_CONFIGS"
   
