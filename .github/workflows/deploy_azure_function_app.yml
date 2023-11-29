@@ -1,0 +1,162 @@
+name: Deploy Azure Function App
+
+on:
+  push:
+    branches:
+      - create-ci-cd-pipeline
+
+env:
+  AZURE_FUNCTIONAPP_LOCATION: 'francecentral'
+  AZURE_FUNCTIONAPP_NAME: 'tobiasodionia'
+  AZURE_FUNCTIONAPP_VERSION: '4'
+  AZURE_FUNCTIONAPP_STORAGE: 'tobiasodioniastorage'
+  AZURE_FUNCTIONAPP_STORAGE_SKU: 'Standard_LRS'
+  AZURE_RESOURCE_GROUP: 'tobiasodionia'
+
+  DOTNET_VERSION: '6.0'
+  BUILD_OUTPUT_PATH: '${{ github.workspace }}/build-artifacts'
+  BUILD_PACKAGE_NAME: 'tobiasodionia.zip'
+
+  GPT_API_BASE_URL: 'https://api.openai.com'
+  GPT_API_COMPLETION_ENDPOINT: '/v1/completions'
+  SMTP_HOST: 'smtp.gmail.com'
+  SMTP_PORT: '587'
+      
+jobs:
+  set-up-function-app-on-cloud:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Check if Function App exists
+        id: check_function_app
+        run: |
+          # Check if the function app exists
+          result=$(az functionapp show \
+          --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --query id --output tsv || echo "null")
+
+          # Output the result
+          echo "::set-output name=result::$result"
+          
+      - name: Note if Azure Function already exists
+        if: steps.check_function_app.outputs.result != 'null'
+        run: |
+          # Function App already exist
+          echo "Function App already set up on cloud"
+          
+      - name: Create Azure Function
+        if: steps.check_function_app.outputs.result == 'null'
+        run: |
+          # Create a resource group
+          echo "Creating $resourceGroup in "$location"..."
+          az group create \
+          --name ${{ env.AZURE_RESOURCE_GROUP }} \
+          --location ${{ env.AZURE_FUNCTIONAPP_LOCATION }} \
+          
+          # Create an Azure storage account in the resource group.
+          echo "Creating $storage"
+          az storage account create \
+          --name ${{env.AZURE_FUNCTIONAPP_STORAGE}} \
+          --location ${{ env.AZURE_FUNCTIONAPP_LOCATION }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --sku ${{ env.AZURE_FUNCTIONAPP_STORAGE_SKU }} \
+          --allow-blob-public-access true \
+          
+          # Create a serverless function app in the resource group.
+          echo "Creating $functionApp"
+          az functionapp create \
+          --name ${{ env.AZURE_FUNCTIONAPP_NAME }} \
+          --storage-account ${{env.AZURE_FUNCTIONAPP_STORAGE}} \
+          --consumption-plan-location ${{ env.AZURE_FUNCTIONAPP_LOCATION }} \
+          --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+          --functions-version ${{ env.AZURE_FUNCTIONAPP_VERSION }} \
+
+  #######################################################################################################
+  update-function-app-configuration:
+    runs-on: ubuntu-latest
+
+    needs: [set-up-function-app-on-cloud]
+
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+      - name: Update Configurations
+        id: update-function-app-configuration
+        run: |
+          # Add configurations on Azure
+          az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings GPT_API_KEY=${{secrets.GPT_API_KEY}}
+          az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings EMAIL_ACCOUNT=${{secrets.EMAIL_ACCOUNT}}
+          az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings EMAIL_PASSWORD=${{secrets.EMAIL_PASSWORD}}
+          az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings GPT_API_BASE_URL=${{env.GPT_API_BASE_URL}}
+          az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings GPT_API_COMPLETION_ENDPOINT=${{env.GPT_API_COMPLETION_ENDPOINT}}
+          az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings SMTP_HOST=${{env.SMTP_HOST}}
+          az functionapp config appsettings set --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --settings SMTP_PORT=${{env.SMTP_PORT}}
+
+  #######################################################################################################
+  build-publish-az-function:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0'
+      
+      - name: Build and Publish Azure Function
+        run: |
+            dotnet build
+            dotnet publish -o bin/publish
+            mkdir ${{ env.BUILD_OUTPUT_PATH }}
+            cd ${{ github.workspace }}/bin/publish
+            zip -r ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }} .
+
+      # Upload the code artifact, this will be used later
+      - name: 'Package Azure Function release build'
+        uses: actions/upload-artifact@v2
+        with:
+          name: build_artifacts
+          path: ${{ env.BUILD_OUTPUT_PATH }}
+          if-no-files-found: error
+
+  #######################################################################################################
+  deploy-az-function:
+    runs-on: ubuntu-latest
+      
+    needs: [update-function-app-configuration, build-publish-az-function]
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Create output directory'
+        shell: bash
+        run: |
+           mkdir ${{ env.BUILD_OUTPUT_PATH }}
+
+       # Fetch published code
+      - name: 'Download Azure function release build'
+        uses: actions/download-artifact@v2
+        with:
+          name: build_artifacts
+          path: ${{ env.BUILD_OUTPUT_PATH }}
+      
+      - name: Run Final Step
+        run: |
+          az functionapp deployment source config-zip --resource-group tobiasodionia --name tobiasodionia --src ${{ env.BUILD_OUTPUT_PATH }}/${{ env.BUILD_PACKAGE_NAME }}
