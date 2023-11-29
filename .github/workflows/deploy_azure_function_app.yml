@@ -134,10 +134,18 @@ jobs:
                 "name" : "SMTP_PORT", 
                 "slotSetting" : false,
                 "value" : "${{env.SMTP_PORT}}"
-            },
+            }
           ]'
-          # Append new configurations (replace with your logic)
-          ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIG")
+
+          TEST_CONFIG='[
+            {
+              "name" : "GPT_API_KEY",
+              "slotSetting" : false,
+              "value" : "${{secrets.GPT_API_KEY}}"
+            }
+          ]'
+          # Append new configurations
+          ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "$TEST_CONFIG $NEW_CONFIG")
           echo "::set-output name=all_configs::$ALL_CONFIGS"
   
       - name: Update Configurations on Azure
