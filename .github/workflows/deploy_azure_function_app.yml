@@ -77,6 +77,8 @@ jobs:
   update-function-app-configuration:
     runs-on: ubuntu-latest
 
+    needs: [set-up-function-app-on-cloud]
+
     steps:
       - name: Azure login
         uses: azure/login@v1
