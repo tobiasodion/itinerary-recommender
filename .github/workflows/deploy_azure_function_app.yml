@@ -95,46 +95,45 @@ jobs:
       - name: Append New Configurations
         id: append-configs
         run: |
-          config="[
+          NEW_CONFIG='[
             {
-              'name' : 'GPT_API_KEY',
-              'slotSetting' : false,
-              'value': '${{secrets.GPT_API_KEY}}''
+              "name" : "GPT_API_KEY",
+              "slotSetting" : false,
+              "value": "${{secrets.GPT_API_KEY}}"
             },
             {
-              'name' :'EMAIL_ACCOUNT',
-              'slotSetting' : false,
-              'value':'${{secrets.EMAIL_ACCOUNT}}'
+              "name" :"EMAIL_ACCOUNT",
+              "slotSetting" : false,
+              "value":"${{secrets.EMAIL_ACCOUNT}}"
             },
             {
-              'name' :'EMAIL_PASSWORD',
-              'slotSetting' : false,
-              'value':'${{secrets.EMAIL_PASSWORD}}' 
+              "name" :"EMAIL_PASSWORD",
+              "slotSetting" : false,
+              "value":"${{secrets.EMAIL_PASSWORD}}" 
             },
             {
-              'name' :'GPT_API_BASE_URL',
-              'slotSetting' : false,
-              'value':'${{env.GPT_API_BASE_URL}}'
+              "name" :"GPT_API_BASE_URL",
+              "slotSetting" : false,
+              "value":"${{env.GPT_API_BASE_URL}}"
             },
             {
-                'name' :'GPT_API_COMPLETION_ENDPOINT',
-                'slotSetting' : false,
-                'value':'${{env.GPT_API_COMPLETION_ENDPOINT}}', 
+                "name" :"GPT_API_COMPLETION_ENDPOINT",
+                "slotSetting" : false,
+                "value":"${{env.GPT_API_COMPLETION_ENDPOINT}}", 
             },
             {
-                'name' :'SMTP_HOST', 
-                'slotSetting' : false,
-                'value':'${{env.SMTP_HOST}}', 
+                "name" :"SMTP_HOST", 
+                "slotSetting" : false,
+                "value":"${{env.SMTP_HOST}}", 
             },
             {
-                'SMTP_PORT': 
-                'slotSetting' : false,
-                'value':'${{env.SMTP_PORT}}'
-            }]"
+                "SMTP_PORT": 
+                "slotSetting" : false,
+                "value":"${{env.SMTP_PORT}}"
+            }]'
             
           # Append new configurations (replace with your logic)
-          NEW_CONFIGS=$config
-          ALL_CONFIGS="${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIGS"
+          ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIG")
           echo "::set-output name=all_configs::$ALL_CONFIGS"
   
       - name: Update Configurations on Azure
@@ -176,7 +175,7 @@ jobs:
   deploy-az-function:
     runs-on: ubuntu-latest
       
-    needs: [set-up-function-app-on-cloud, build-publish-az-function]
+    needs: [update-function-app-configuration, build-publish-az-function]
       
     steps:
       - name: Checkout repository
