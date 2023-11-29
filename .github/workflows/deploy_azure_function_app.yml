@@ -142,6 +142,11 @@ jobs:
               "name" : "GPT_API_KEY",
               "slotSetting" : false,
               "value" : "${{secrets.GPT_API_KEY}}"
+            },
+            {
+              "name" : "GPT_API_KEY",
+              "slotSetting" : false,
+              "value" : "${{secrets.GPT_API_KEY}}"
             }
           ]'
           # Append new configurations
