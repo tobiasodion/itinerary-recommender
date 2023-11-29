@@ -44,7 +44,7 @@ jobs:
           # Output the result
           echo "::set-output name=result::$result"
           
-      - name: Create Azure Function
+      - name: Note if Azure Function already exists
         if: steps.check_function_app.outputs.result != 'null'
         run: |
           # Function App already exist
