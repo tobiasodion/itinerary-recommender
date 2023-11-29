@@ -99,7 +99,7 @@ jobs:
       - name: Append New Configurations
         id: append-configs
         run: |
-          NEW_CONFIG=$([
+          NEW_CONFIG=[
             {
               "name" : "GPT_API_KEY",
               "slotSetting" : false,
@@ -135,7 +135,7 @@ jobs:
                 "slotSetting" : false,
                 "value" : "${{env.SMTP_PORT}}"
             }
-          ])
+          ]
           
           # Append new configurations
           ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIG")
