@@ -137,7 +137,8 @@ jobs:
             }
           ]'
 
-          EXISTING_CONFIG=$(cat steps.retrieve-configs.outputs.configs)
+          echo "$steps.retrieve-configs.outputs.configs"
+          EXISTING_CONFIG=$(steps.retrieve-configs.outputs.configs)
           
           # Append new configurations
           ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "$EXISTING_CONFIG $NEW_CONFIG")
