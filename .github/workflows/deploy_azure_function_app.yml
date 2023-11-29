@@ -99,7 +99,7 @@ jobs:
       - name: Append New Configurations
         id: append-configs
         run: |
-          NEW_CONFIG='[
+          NEW_CONFIG=$([
             {
               "name" : "GPT_API_KEY",
               "slotSetting" : false,
@@ -135,22 +135,10 @@ jobs:
                 "slotSetting" : false,
                 "value" : "${{env.SMTP_PORT}}"
             }
-          ]'
-
-          TEST_CONFIG='[
-            {
-              "name" : "GPT_API_KEY",
-              "slotSetting" : false,
-              "value" : "${{secrets.GPT_API_KEY}}"
-            },
-            {
-              "name" : "GPT_API_KEY",
-              "slotSetting" : false,
-              "value" : "${{secrets.GPT_API_KEY}}"
-            }
-          ]'
+          ])
+          
           # Append new configurations
-          ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "$TEST_CONFIG $NEW_CONFIG")
+          ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIG")
           echo "::set-output name=all_configs::$ALL_CONFIGS"
   
       - name: Update Configurations on Azure
