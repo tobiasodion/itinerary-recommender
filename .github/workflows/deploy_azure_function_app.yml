@@ -93,13 +93,49 @@ jobs:
         id: retrieve-configs
         run: |
           # Retrieve existing configurations
-          CONFIGS=$(az functionapp config appsettings list --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --output json)
+          CONFIGS=$(az functionapp config appsettings list --name ${{ env.AZURE_FUNCTIONAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }})
           echo "::set-output name=configs::$CONFIGS"
   
       - name: Append New Configurations
         id: append-configs
         run: |
-          echo "${{ steps.retrieve-configs.outputs.configs }}"
+          NEW_CONFIG='[
+              {
+                "name": "GPT_API_KEY",
+                "slotSetting": false,
+                "value": "${{secrets.GPT_API_KEY}}"
+              },
+              {
+                "name": "EMAIL_ACCOUNT",
+                "slotSetting": false,
+                "value": "${{secrets.EMAIL_ACCOUNT}}"
+              },
+              {
+                "name": "EMAIL_PASSWORD",
+                "slotSetting": false,
+                "value": "${{secrets.EMAIL_PASSWORD}}"
+              },
+              {
+                "name": "GPT_API_BASE_URL",
+                "slotSetting": false,
+                "value": "${{env.GPT_API_BASE_URL}}"
+              },
+              {
+                "name": "GPT_API_COMPLETION_ENDPOINT",
+                "slotSetting": false,
+                "value": "${{env.GPT_API_COMPLETION_ENDPOINT}}"
+              },
+              {
+                "name": "SMTP_HOST",
+                "slotSetting": false,
+                "value": "${{env.SMTP_HOST}}"
+              },
+              {
+                "name": "SMTP_PORT",
+                "slotSetting": false,
+                "value": "${{env.SMTP_PORT}}"
+              }
+          ]'
 
           # Append new configurations
           ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIG")
