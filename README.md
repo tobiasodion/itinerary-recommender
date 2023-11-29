@@ -60,9 +60,9 @@ NB: GitAction uses this service principal to authenticate to Azure cloud to setu
 3. Fork this repository and create the following repository secrets:
 
 - AZURE_CREDENTIALS = `{"clientSecret":  "******", "subscriptionId":  "******", "tenantId":  "******", "clientId":  "******"}`
-- EMAIL_ACCOUNT = <your-email-account>
-- EMAIL_PASSWORD = <your-email-app-passwod>
-- GPT_API_KEY = <your-gpt-api-key>
+- EMAIL_ACCOUNT = *****
+- EMAIL_PASSWORD = ****
+- GPT_API_KEY = ****
 
 4. Customize the branch to trigger to workflow and `env` section of the workflow file - `.github/workflows/deploy_azure_function_app.yml` as needed.
 
