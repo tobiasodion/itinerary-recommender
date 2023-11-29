@@ -99,48 +99,45 @@ jobs:
       - name: Append New Configurations
         id: append-configs
         run: |
-          NEW_CONFIG=$(cat <<EOF
-          [
+          NEW_CONFIG='[
             {
               "name" : "GPT_API_KEY",
               "slotSetting" : false,
-              "value": "${{secrets.GPT_API_KEY}}"
+              "value" : "${{secrets.GPT_API_KEY}}"
             },
             {
-              "name" :"EMAIL_ACCOUNT",
+              "name" : "EMAIL_ACCOUNT",
               "slotSetting" : false,
-              "value":"${{secrets.EMAIL_ACCOUNT}}"
+              "value" : "${{secrets.EMAIL_ACCOUNT}}"
             },
             {
-              "name" :"EMAIL_PASSWORD",
+              "name" : "EMAIL_PASSWORD",
               "slotSetting" : false,
-              "value":"${{secrets.EMAIL_PASSWORD}}" 
+              "value" : "${{secrets.EMAIL_PASSWORD}}" 
             },
             {
-              "name" :"GPT_API_BASE_URL",
+              "name" : "GPT_API_BASE_URL",
               "slotSetting" : false,
-              "value":"${{env.GPT_API_BASE_URL}}"
+              "value" : "${{env.GPT_API_BASE_URL}}"
             },
             {
-                "name" :"GPT_API_COMPLETION_ENDPOINT",
+                "name" : "GPT_API_COMPLETION_ENDPOINT",
                 "slotSetting" : false,
-                "value":"${{env.GPT_API_COMPLETION_ENDPOINT}}"
+                "value" : "${{env.GPT_API_COMPLETION_ENDPOINT}}"
             },
             {
                 "name" : "SMTP_HOST", 
                 "slotSetting" : false,
-                "value":"${{env.SMTP_HOST}}"
+                "value" : "${{env.SMTP_HOST}}"
             },
             {
                 "name" : "SMTP_PORT", 
                 "slotSetting" : false,
                 "value" : "${{env.SMTP_PORT}}"
-            }
-          ]
-          EOF
-          )
+            },
+          ]'
           # Append new configurations (replace with your logic)
-          ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIG]")
+          ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "${{ steps.retrieve-configs.outputs.configs }} $NEW_CONFIG")
           echo "::set-output name=all_configs::$ALL_CONFIGS"
   
       - name: Update Configurations on Azure
