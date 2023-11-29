@@ -136,6 +136,8 @@ jobs:
               "value": "${{env.SMTP_PORT}}"
             }
           ]'
+
+          EXISTING_CONFIG=${{ steps.retrieve-configs.outputs.configs }}
           
           # Append new configurations
           ALL_CONFIGS=$(jq -s '.[0] + .[1]' <<< "$EXISTING_CONFIG $NEW_CONFIG")
