@@ -3,8 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Mail;
 using System.Net;
 using System;
-using System.Threading;
-using Microsoft.AspNetCore.Mvc.Filters;
+using System.IO;
 
 namespace az_function
 {
@@ -30,7 +29,7 @@ namespace az_function
             using (MailMessage mailMessage = new MailMessage(_senderEmail, recipientEmail)
             {
                 Subject = sendEmailRequest.Subject,
-                Body = sendEmailRequest.Body
+                Body = sendEmailRequest.Body,
             })
             {
                 // Create a new SmtpClient
@@ -40,16 +39,21 @@ namespace az_function
                     EnableSsl = true
                 })
                 {
-                    try
+                    using (MemoryStream memoryStream = new MemoryStream(sendEmailRequest.AttachmentFileStream))
                     {
-                        // Send the email
-                        await smtpClient.SendMailAsync(mailMessage);
-                        log.LogInformation("Email sent successfully.");
-                    }
-                    catch (Exception ex)
-                    {
-                        log.LogError($"Error: {ex.Message}");
-                        throw;
+                        try
+                        {
+                            Attachment itineraryAttachment = new Attachment(memoryStream, $"attachment_name_{TimestampHelper.GetFormattedTimestamp()}.pdf", "application/pdf");
+                            mailMessage.Attachments.Add(itineraryAttachment);
+                            // Send the email
+                            await smtpClient.SendMailAsync(mailMessage);
+                            log.LogInformation("Email sent successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            log.LogError($"Error: {ex.Message}");
+                            throw;
+                        }
                     }
                 }
             }
