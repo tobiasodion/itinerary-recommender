@@ -17,8 +17,7 @@ namespace az_function
     {
         [FunctionName("GetItinerary")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        [ProducesResponseType(typeof(BadRequestObjectResult), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(InternalServerErrorResult), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(BadRequestResponse), StatusCodes.Status400BadRequest)]
         public static async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
         [RequestBodyType(typeof(GetItineraryRequest), "request")] HttpRequest req,
@@ -30,7 +29,12 @@ namespace az_function
 
             try
             {
-                GetItineraryRequest request = JsonConvert.DeserializeObject<GetItineraryRequest>(requestBody);
+                JsonSerializerSettings settings = new JsonSerializerSettings
+                {
+                    MissingMemberHandling = MissingMemberHandling.Error,
+                };
+
+                GetItineraryRequest request = JsonConvert.DeserializeObject<GetItineraryRequest>(requestBody, settings);
                 log.LogInformation($"{request}");
                 msg.Add(request);
                 return new AcceptedResult();
