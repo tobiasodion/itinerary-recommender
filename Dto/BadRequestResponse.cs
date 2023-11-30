@@ -1,6 +1,7 @@
-namespace az_function{
+namespace az_function
+{
     record BadRequestResponse(
-    int StatusCode,
-    string ErrorMessage
-);
+        int StatusCode,
+        string ErrorMessage
+    );
 }
