@@ -29,9 +29,10 @@ namespace az_function
 
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.AddSwashBuckle(Assembly.GetExecutingAssembly(), opts => {
+            builder.AddSwashBuckle(Assembly.GetExecutingAssembly(), opts =>
+            {
                 opts.AddCodeParameter = true;
-                opts.Documents = new [] {
+                opts.Documents = new[] {
                     new SwaggerDocument {
                         Name = "v1",
                             Title = "Swagger document",
@@ -39,13 +40,15 @@ namespace az_function
                             Version = "v2"
                     }
                 };
-                opts.ConfigureSwaggerGen = x => {
-                    x.CustomOperationIds(apiDesc => {
-                        return apiDesc.TryGetMethodInfo(out MethodInfo mInfo) ? mInfo.Name : default (Guid).ToString();
+                opts.ConfigureSwaggerGen = x =>
+                {
+                    x.CustomOperationIds(apiDesc =>
+                    {
+                        return apiDesc.TryGetMethodInfo(out MethodInfo mInfo) ? mInfo.Name : default(Guid).ToString();
                     });
                 };
             });
-            
+
             builder.Services.AddSingleton(configuration);
 
             builder.Services.AddTransient<IGptClient>(provider =>
