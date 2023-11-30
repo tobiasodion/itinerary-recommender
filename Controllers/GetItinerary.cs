@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using AzureFunctions.Extensions.Swashbuckle.Attribute;
 
 namespace az_function
 {
@@ -14,7 +15,8 @@ namespace az_function
     {
         [FunctionName("GetItinerary")]
         public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] 
+        [RequestBodyType(typeof(GetItineraryRequest), "request")] HttpRequest req,
         [Queue("getitineraryqueue"), StorageAccount("AzureWebJobsStorage")] ICollector<GetItineraryRequest> msg,
         ILogger log)
         {
