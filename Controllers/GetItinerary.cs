@@ -8,21 +8,24 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using AzureFunctions.Extensions.Swashbuckle.Attribute;
+using System.Net;
 
 namespace az_function
 {
     public static class GetItinerary
     {
         [FunctionName("GetItinerary")]
+        [ProducesResponseType(null, StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(RequestErrorModel), StatusCodes.Status400BadRequest)]
         public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] 
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
         [RequestBodyType(typeof(GetItineraryRequest), "request")] HttpRequest req,
         [Queue("getitineraryqueue"), StorageAccount("AzureWebJobsStorage")] ICollector<GetItineraryRequest> msg,
         ILogger log)
         {
             log.LogInformation($"GetItinerary request received");
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            
+
             try
             {
                 GetItineraryRequest request = JsonConvert.DeserializeObject<GetItineraryRequest>(requestBody);
@@ -37,7 +40,11 @@ namespace az_function
                 log.LogError(ex.Message);
             }
 
-            return new BadRequestObjectResult("Please pass a request body - {\"FirstName\" : \"Tobias\", \"LastName\" : \"Odion\",\"Email\" : \"tobiasodion@gmail.com\",\"City\" : \"Paris\"}");
+            var getItineraryRequestExample = new GetItineraryRequest("John", "Doe", "johndoe@gmail.com", "Paris");
+            var errorMessage = $"Request body json must be - {getItineraryRequestExample}";
+            var requestErrorModel = new RequestErrorModel(HttpStatusCode.BadRequest, errorMessage);
+
+            return new BadRequestObjectResult(requestErrorModel);
         }
     }
 }
