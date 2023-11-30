@@ -15,7 +15,7 @@ namespace az_function
     public static class GetItinerary
     {
         [FunctionName("GetItinerary")]
-        [ProducesResponseType(null, StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(RequestErrorModel), StatusCodes.Status400BadRequest)]
         public static async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
@@ -29,11 +29,8 @@ namespace az_function
             try
             {
                 GetItineraryRequest request = JsonConvert.DeserializeObject<GetItineraryRequest>(requestBody);
-                if (request != null)
-                {
-                    msg.Add(request);
-                    return new AcceptedResult();
-                }
+                msg.Add(request);
+                return new AcceptedResult();
             }
             catch (Exception ex)
             {
