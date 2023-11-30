@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using AzureFunctions.Extensions.Swashbuckle.Attribute;
 using System.Net;
+using System.Web.Http;
 
 namespace az_function
 {
@@ -16,8 +17,8 @@ namespace az_function
     {
         [FunctionName("GetItinerary")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
-        [ProducesResponseType(typeof(BadRequestResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ObjectResult), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(BadRequestObjectResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(InternalServerErrorResult), StatusCodes.Status500InternalServerError)]
         public static async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
         [RequestBodyType(typeof(GetItineraryRequest), "request")] HttpRequest req,
@@ -39,16 +40,13 @@ namespace az_function
                 log.LogError(ex.Message);
                 var getItineraryRequestExample = new GetItineraryRequest("John", "Doe", "johndoe@gmail.com", "Paris");
                 var errorMessage = $"Request body json must be - {getItineraryRequestExample}";
-                var requestErrorModel = new BadRequestResponse((int)HttpStatusCode.BadRequest, errorMessage);
-                return new BadRequestObjectResult(requestErrorModel);
+                var badRequestResponse = new BadRequestResponse((int)HttpStatusCode.BadRequest, errorMessage);
+                return new BadRequestObjectResult(badRequestResponse);
             }
             catch (Exception ex)
             {
                 log.LogError(ex.Message);
-                return new ObjectResult(new { error = "Internal Server Error" })
-                {
-                    StatusCode = 500,
-                };
+                return new InternalServerErrorResult();
             }
         }
     }
