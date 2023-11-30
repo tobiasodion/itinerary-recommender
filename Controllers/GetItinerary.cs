@@ -15,6 +15,9 @@ namespace az_function
     public static class GetItinerary
     {
         [FunctionName("GetItinerary")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(typeof(BadRequestResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ObjectResult), StatusCodes.Status500InternalServerError)]
         public static async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
         [RequestBodyType(typeof(GetItineraryRequest), "request")] HttpRequest req,
@@ -27,22 +30,26 @@ namespace az_function
             try
             {
                 GetItineraryRequest request = JsonConvert.DeserializeObject<GetItineraryRequest>(requestBody);
-                if (request != null)
-                {
-                    msg.Add(request);
-                    return new AcceptedResult();
-                }
+                log.LogInformation($"{request}");
+                msg.Add(request);
+                return new AcceptedResult();
+            }
+            catch (JsonSerializationException ex)
+            {
+                log.LogError(ex.Message);
+                var getItineraryRequestExample = new GetItineraryRequest("John", "Doe", "johndoe@gmail.com", "Paris");
+                var errorMessage = $"Request body json must be - {getItineraryRequestExample}";
+                var requestErrorModel = new BadRequestResponse((int)HttpStatusCode.BadRequest, errorMessage);
+                return new BadRequestObjectResult(requestErrorModel);
             }
             catch (Exception ex)
             {
                 log.LogError(ex.Message);
+                return new ObjectResult(new { error = "Internal Server Error" })
+                {
+                    StatusCode = 500,
+                };
             }
-
-            var getItineraryRequestExample = new GetItineraryRequest("John", "Doe", "johndoe@gmail.com", "Paris");
-            var errorMessage = $"Request body json must be - {getItineraryRequestExample}";
-            var requestErrorModel = new RequestErrorModel(HttpStatusCode.BadRequest, errorMessage);
-
-            return new BadRequestObjectResult(requestErrorModel);
         }
     }
 }
