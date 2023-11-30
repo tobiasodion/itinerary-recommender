@@ -75,3 +75,5 @@ NB: GitAction uses this service principal to authenticate to Azure cloud to setu
 - If perhaps the `GPT_API_BASE_URL`, `GPT_API_COMPLETION_ENDPOINT` has changed as at the time of running this code, update the values in the env section of the workflow file.
 - The `EMAIL_PASSWORD` in the template refers to [App Password](https://support.google.com/mail/answer/185833?hl=en). I had to use the App password because I could not authenticate with my google account password. It may not be the best option but it is open for improvement.
 - Ensure to make the Azure names as unique as possible and stick to Azure naming conventions [see link](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules)
+
+**REMEMBER TO CLEAN UP THE CLOUD RESOURCES AFTER TESTING** [See Link](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/delete-resource-group?tabs=azure-powershell#delete-resource-group)
