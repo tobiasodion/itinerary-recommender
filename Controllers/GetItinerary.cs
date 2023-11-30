@@ -27,8 +27,11 @@ namespace az_function
             try
             {
                 GetItineraryRequest request = JsonConvert.DeserializeObject<GetItineraryRequest>(requestBody);
-                msg.Add(request);
-                return new AcceptedResult();
+                if (request != null)
+                {
+                    msg.Add(request);
+                    return new AcceptedResult();
+                }
             }
             catch (Exception ex)
             {
