@@ -9,6 +9,8 @@ namespace az_function
         [JsonProperty(Required = Required.Always)]
         string Subject,
         [JsonProperty(Required = Required.Always)]
-        string Body
+        string Body,
+        [JsonProperty(Required = Required.Always)]
+        byte[] AttachmentFileStream
     );
 }
