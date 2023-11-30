@@ -25,9 +25,9 @@ namespace az_function
 
             var apiUrl = UrlHelper.GetFullUrl(baseUrl, completionEndpoint);
             log.LogInformation(apiUrl);
-            var prompt = $"Write a 8-line poem about {getItineraryRequest.City}";
+            var prompt = $"List itinerary for a day tour of {StringHelper.CapitalizeFirstLetter(getItineraryRequest.City)}. just a numbered list split into morning, afternoon, lunch, evening and nothing more";
             var gptModel = "text-davinci-003"; // Specify the model you want to use
-            var maxToken = 150;
+            var maxToken = 600;
 
             var getCompletionRequest = new GetCompletionRequest(apiUrl, prompt, gptModel, maxToken);
 

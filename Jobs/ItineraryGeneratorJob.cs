@@ -20,7 +20,7 @@ namespace az_function
                 var itineraryFromGpt = await context.CallActivityAsync<string>("ItineraryGeneratorJob_GetItinerary", input);
                 var pdfStreamFromString = await context.CallActivityAsync<byte[]>("ItineraryGeneratorJob_GeneratePdfStream", itineraryFromGpt);
                 var blobUrl = await context.CallActivityAsync<string>("ItineraryGeneratorJob_UploadBlob", new PdfContent(pdfStreamFromString));
-                await context.CallActivityAsync("ItineraryGeneratorJob_SendEMail", new SendEmailRequest(input.Email, "Itinerary Suggestion", $"Dear {input.FirstName},\n\nHere is your Itinerary for your {input.City} Trip.\n\nHave a great Trip!", pdfStreamFromString));
+                await context.CallActivityAsync("ItineraryGeneratorJob_SendEMail", new SendEmailRequest(input.Email, $"1-Day {input.City} Tour Itinerary", $"Dear {input.FirstName},\n\nHere is your Itinerary for your {input.City} Trip.\n\nHave a great Trip!", pdfStreamFromString));
             }
             catch (Exception ex)
             {
