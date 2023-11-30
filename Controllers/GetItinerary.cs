@@ -15,7 +15,7 @@ namespace az_function
     public static class GetItinerary
     {
         [FunctionName("GetItinerary")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(RequestErrorModel), StatusCodes.Status400BadRequest)]
         public static async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
