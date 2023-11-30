@@ -3,7 +3,7 @@ name: Deploy Azure Function App
 on:
   push:
     branches:
-      - master
+      - add-swagger-docs
 
 env:
   AZURE_FUNCTIONAPP_LOCATION: 'francecentral'
