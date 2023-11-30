@@ -116,6 +116,7 @@ jobs:
       
       - name: Build and Publish Azure Function
         run: |
+            dotnet restore .
             dotnet build
             dotnet publish -o bin/publish
             mkdir ${{ env.BUILD_OUTPUT_PATH }}
