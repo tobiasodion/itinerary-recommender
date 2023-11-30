@@ -15,7 +15,7 @@ namespace az_function
 {
     public static class GetItinerary
     {
-        [FunctionName("GetItinerary")]
+        [FunctionName("SendItinerary")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(typeof(BadRequestResponse), StatusCodes.Status400BadRequest)]
         public static async Task<IActionResult> Run(
